@@ -5,6 +5,18 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.2.2] - 2026-03-17
+
+### Fixed
+- **Terminal.app exits when resetting background color** — OSC 111
+  (`\033]111\007`) causes Terminal.app to exit cleanly (no crash report) when
+  processing the sequence, likely due to its parser partially matching OSC 11
+  then encountering unexpected input. Replaced all OSC 111 usage with OSC 11
+  set to Terminal.app's default background color `(5866, 5866, 5866)`.
+
+### Changed
+- Increased red/green brightness ~25% to better match v0.1 AppleScript appearance
+
 ## [0.2.1] - 2026-03-17
 
 ### Fixed

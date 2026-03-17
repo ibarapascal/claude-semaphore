@@ -5,7 +5,7 @@
 **Terminal.app tab background color as session status indicator for Claude Code**
 
 [![Claude Code Plugin](https://img.shields.io/badge/Claude%20Code-Plugin-blueviolet)](https://docs.anthropic.com/en/docs/claude-code)
-[![Version](https://img.shields.io/badge/version-0.2.1-blue)](https://github.com/ibarapascal/claude-semaphore/releases)
+[![Version](https://img.shields.io/badge/version-0.2.2-blue)](https://github.com/ibarapascal/claude-semaphore/releases)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 [![Platform](https://img.shields.io/badge/platform-macOS-lightgrey)](https://github.com/ibarapascal/claude-semaphore)
 
@@ -36,11 +36,11 @@ At a glance, you know exactly which tab needs you.
 
 ## How It Works
 
-| State | Color | RGB (0-255) | Trigger Hook |
+| State | Color | RGB (0-65535) | Trigger Hook |
 |-------|-------|-------------|-------------|
-| Busy (working) | Red | `(47, 0, 0)` | `UserPromptSubmit` / `PreToolUse` / `PreCompact` |
-| Idle (waiting for input) | Green | `(0, 31, 0)` | `Stop` / `SessionStart` |
-| No session | Default | Terminal.app default | `SessionEnd` / Green fade-out after timeout |
+| Busy (working) | Red | `(15000, 0, 0)` | `UserPromptSubmit` / `PreToolUse` / `PreCompact` |
+| Idle (waiting for input) | Green | `(0, 10000, 0)` | `Stop` / `SessionStart` |
+| No session | Default | `(5866, 5866, 5866)` | `SessionEnd` / Green fade-out after timeout |
 
 ---
 

@@ -25,9 +25,9 @@ Hook Event (SessionStart / UserPromptSubmit / PreToolUse / PreCompact / Stop / S
 
 | State | Color | RGB | Trigger |
 |-------|-------|-----|---------|
-| Busy | Red | `(47, 0, 0)` | `UserPromptSubmit` / `PreToolUse` / `PreCompact` |
-| Idle | Green | `(0, 31, 0)` | `Stop` / `SessionStart` |
-| No session | Default | Terminal.app default | `SessionEnd` / Fade timeout |
+| Busy | Red | `(15000, 0, 0)` | `UserPromptSubmit` / `PreToolUse` / `PreCompact` |
+| Idle | Green | `(0, 10000, 0)` | `Stop` / `SessionStart` |
+| No session | Default | `(5866, 5866, 5866)` | `SessionEnd` / Fade timeout |
 
 ---
 
@@ -93,7 +93,7 @@ All state files in `/tmp/`, per-tty isolated:
 
 - **Terminal.app only** — Uses Terminal.app proprietary ANSI escape sequences; iTerm2/Kitty/Alacritty not supported
 - **Not a true border** — Changes background color, not window border (Terminal.app has no border API)
-- **No exact color restore** — SessionEnd resets to Terminal.app default; cannot read/restore user's custom per-tab colors (ANSI escape sequences are write-only)
+- **Hardcoded default color** — SessionEnd resets to Terminal.app default gray `(5866, 5866, 5866)`; users with custom background colors will see a reset to gray instead of their custom color
 - **Ctrl+C cleanup** — Requires shell wrapper (not part of plugin API)
 
 ---

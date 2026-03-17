@@ -3,8 +3,8 @@
 #
 # Color states:
 #   Default        - SessionEnd / green fades after timeout
-#   Red  (47,0,0)  - UserPromptSubmit / PreToolUse / PreCompact (busy)
-#   Green (0,31,0) - Stop (idle, waiting for user input)
+#   Red  (15000,0,0)  - UserPromptSubmit / PreToolUse / PreCompact (busy)
+#   Green (0,10000,0) - Stop (idle, waiting for user input)
 #
 # Uses OSC 11 (xterm standard) escape sequences instead of AppleScript
 # to avoid cross-process Apple Event overhead and heap corruption risk.
@@ -40,14 +40,16 @@ STATE_FILE="/tmp/claude-semaphore-state${TTY_SAFE}"
 FADE_PID_FILE="/tmp/claude-semaphore-fade${TTY_SAFE}"
 
 # Set tab background color via OSC 11 escape sequence (xterm standard)
-# Args: r g b (0-255 each, converted to hex for rgb:RR/GG/BB format)
+# Args: r g b (0-65535 each, 16-bit color, converted to 4-digit hex)
 set_color() {
-  printf '\033]11;rgb:%02x/%02x/%02x\007' "$1" "$2" "$3" > "$MY_TTY" 2>/dev/null
+  printf '\033]11;rgb:%04x/%04x/%04x\007' "$1" "$2" "$3" > "$MY_TTY" 2>/dev/null
 }
 
-# Reset tab background color to profile default via OSC 111
+# Reset tab background color to Terminal.app default dark gray
+# Uses OSC 11 with explicit color instead of OSC 111 (which crashes Terminal.app
+# due to prefix collision with OSC 11 in Terminal's escape sequence parser)
 reset_color() {
-  printf '\033]111\007' > "$MY_TTY" 2>/dev/null
+  set_color 5866 5866 5866
 }
 
 # Kill previous fade-out background process
@@ -106,10 +108,10 @@ CURRENT_STATE=""
 [ -f "$STATE_FILE" ] && CURRENT_STATE=$(cat "$STATE_FILE")
 [ "$CURRENT_STATE" = "$COLOR" ] && exit 0
 
-# Apply color (0-255 scale)
+# Apply color (0-65535 scale, matches original AppleScript values)
 case "$COLOR" in
-  red)   set_color 47 0 0 ;;
-  green) set_color 0 31 0 ;;
+  red)   set_color 15000 0 0 ;;
+  green) set_color 0 10000 0 ;;
 esac
 
 echo "$COLOR" > "$STATE_FILE"
