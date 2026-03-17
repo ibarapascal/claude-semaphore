@@ -1,0 +1,10 @@
+{
+  "name": "claude-semaphore",
+  "version": "0.1.0",
+  "description": "Terminal.app tab background color as Claude Code session status indicator — red means busy, green means waiting for input",
+  "license": "MIT",
+  "keywords": ["terminal", "status", "color", "macos", "indicator"],
+  "author": { "name": "ibarapascal" },
+  "repository": "https://github.com/ibarapascal/claude-semaphore",
+  "homepage": "https://github.com/ibarapascal/claude-semaphore"
+}
