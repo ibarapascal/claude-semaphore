@@ -16,9 +16,8 @@ Hook Event (SessionStart / UserPromptSubmit / PreToolUse / PreCompact / Stop / S
        |
        ├─ Walk process tree → find tty
        ├─ Dedup check (state file) → skip if same color
-       ├─ AppleScript → match tty in Terminal windows → set background color
-       ├─ SessionStart → save original color
-       ├─ SessionEnd → restore original color, cleanup
+       ├─ ANSI escape sequence → write to tty device → set tab background color
+       ├─ SessionEnd → reset to default color, cleanup
        └─ Stop → set green + spawn fade-out background process
 ```
 
@@ -26,9 +25,9 @@ Hook Event (SessionStart / UserPromptSubmit / PreToolUse / PreCompact / Stop / S
 
 | State | Color | RGB | Trigger |
 |-------|-------|-----|---------|
-| Busy | Red | `{12000, 0, 0}` | `UserPromptSubmit` / `PreToolUse` / `PreCompact` |
-| Idle | Green | `{0, 8000, 0}` | `Stop` / `SessionStart` |
-| No session | Default | Original color | `SessionEnd` / Fade timeout |
+| Busy | Red | `(47, 0, 0)` | `UserPromptSubmit` / `PreToolUse` / `PreCompact` |
+| Idle | Green | `(0, 31, 0)` | `Stop` / `SessionStart` |
+| No session | Default | Terminal.app default | `SessionEnd` / Fade timeout |
 
 ---
 
@@ -63,7 +62,7 @@ Core hook script. Handles all hook events:
 - Reads stdin JSON with bash regex (no python/jq dependency)
 - Finds tty by walking process tree upward
 - Deduplicates via state file (`/tmp/claude-semaphore-state_dev_ttysXXX`)
-- Sets color via AppleScript (iterates Terminal windows/tabs, matches tty)
+- Sets color via ANSI escape sequences written directly to tty device (~0ms, no process spawn)
 - Manages fade-out background process for green state
 
 ### reset-color.sh
@@ -86,16 +85,15 @@ All state files in `/tmp/`, per-tty isolated:
 | File | Purpose |
 |------|---------|
 | `claude-semaphore-state_dev_ttysXXX` | Current color state (dedup) |
-| `claude-semaphore-original_dev_ttysXXX` | Saved original background color |
 | `claude-semaphore-fade_dev_ttysXXX` | Fade background process PID |
 
 ---
 
 ## Known Limitations
 
-- **Terminal.app only** — Relies on AppleScript `background color` property; iTerm2/Kitty/Alacritty not supported
+- **Terminal.app only** — Uses Terminal.app proprietary ANSI escape sequences; iTerm2/Kitty/Alacritty not supported
 - **Not a true border** — Changes background color, not window border (Terminal.app has no border API)
-- **AppleScript latency** — Single call ~130ms; deduplication mitigates frequent `PreToolUse` triggers
+- **No exact color restore** — SessionEnd resets to Terminal.app default; cannot read/restore user's custom per-tab colors (ANSI escape sequences are write-only)
 - **Ctrl+C cleanup** — Requires shell wrapper (not part of plugin API)
 
 ---
@@ -153,8 +151,8 @@ When updating version or changelog, always update all three together:
 ## Release Checklist
 
 - [ ] Scripts tested on macOS Terminal.app
-- [ ] Deduplication verified (no redundant AppleScript calls)
-- [ ] Original color save/restore works
+- [ ] Deduplication verified (no redundant escape sequence writes)
+- [ ] Default color reset works on SessionEnd
 - [ ] Fade-out works after timeout
 - [ ] Shell wrapper reset-color.sh works
 - [ ] README.md updated

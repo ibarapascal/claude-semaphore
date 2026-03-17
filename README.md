@@ -5,7 +5,7 @@
 **Terminal.app tab background color as session status indicator for Claude Code**
 
 [![Claude Code Plugin](https://img.shields.io/badge/Claude%20Code-Plugin-blueviolet)](https://docs.anthropic.com/en/docs/claude-code)
-[![Version](https://img.shields.io/badge/version-0.1.0-blue)](https://github.com/ibarapascal/claude-semaphore/releases)
+[![Version](https://img.shields.io/badge/version-0.2.0-blue)](https://github.com/ibarapascal/claude-semaphore/releases)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 [![Platform](https://img.shields.io/badge/platform-macOS-lightgrey)](https://github.com/ibarapascal/claude-semaphore)
 
@@ -36,20 +36,20 @@ At a glance, you know exactly which tab needs you.
 
 ## How It Works
 
-| State | Color | RGB | Trigger Hook |
-|-------|-------|-----|-------------|
-| Busy (working) | Red | `{12000, 0, 0}` | `UserPromptSubmit` / `PreToolUse` / `PreCompact` |
-| Idle (waiting for input) | Green | `{0, 8000, 0}` | `Stop` / `SessionStart` |
-| No session | Default | User's original color | `SessionEnd` / Green fade-out after timeout |
+| State | Color | RGB (0-255) | Trigger Hook |
+|-------|-------|-------------|-------------|
+| Busy (working) | Red | `(47, 0, 0)` | `UserPromptSubmit` / `PreToolUse` / `PreCompact` |
+| Idle (waiting for input) | Green | `(0, 31, 0)` | `Stop` / `SessionStart` |
+| No session | Default | Terminal.app default | `SessionEnd` / Green fade-out after timeout |
 
 ---
 
 ## Features
 
 - **Per-window isolation** — Each terminal tab is identified by its tty; color changes only affect the correct tab
-- **Deduplication** — State file caching prevents redundant AppleScript calls when the color hasn't changed
-- **Original color save/restore** — Background color is saved on `SessionStart` and restored on `SessionEnd`
-- **Green fade-out** — After the configurable timeout (default 10 minutes), green automatically fades back to your original color
+- **Zero overhead** — Uses Terminal.app ANSI escape sequences (~0ms) instead of AppleScript (~130ms), no process spawning
+- **Deduplication** — State file caching prevents redundant writes when the color hasn't changed
+- **Green fade-out** — After the configurable timeout (default 10 minutes), green automatically resets to Terminal.app default
 - **Shell wrapper fallback** — Handles Ctrl+C forced exits where `SessionEnd` hook doesn't fire
 
 ---
@@ -57,7 +57,7 @@ At a glance, you know exactly which tab needs you.
 ## Requirements
 
 - **macOS** with **Terminal.app**
-- Not compatible with iTerm2, Kitty, Alacritty, or other terminal emulators (relies on Terminal.app's AppleScript `background color` property)
+- Not compatible with iTerm2, Kitty, Alacritty, or other terminal emulators (relies on Terminal.app's proprietary ANSI escape sequences for tab color)
 
 ---
 
@@ -111,13 +111,17 @@ Hook Event (e.g., PreToolUse)
        ├─ Read stdin JSON → extract hook_event_name (bash regex, no python)
        ├─ Walk process tree upward → find tty
        ├─ Check state file → skip if color unchanged (dedup)
-       ├─ AppleScript: iterate Terminal windows/tabs → match tty → set background color
-       └─ On Stop: spawn background fade process (sleep N → restore original)
+       ├─ ANSI escape sequence → write directly to tty device → set tab background color
+       └─ On Stop: spawn background fade process (sleep N → reset to default)
 ```
+
+Uses Terminal.app's proprietary escape sequences (`\033]6;1;bg;...`) to set tab
+background color by writing directly to the tty device file. This is an in-process
+operation with no cross-process communication, eliminating the AppleScript overhead
+and stability issues of the v0.1 approach.
 
 **Temporary files** (per-tty, in `/tmp/`):
 - `claude-semaphore-state_dev_ttysXXX` — Current color state
-- `claude-semaphore-original_dev_ttysXXX` — Saved original background color
 - `claude-semaphore-fade_dev_ttysXXX` — Fade background process PID
 
 ---
