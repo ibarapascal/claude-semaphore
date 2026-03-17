@@ -13,6 +13,6 @@ if [ -f "$FADE_PID_FILE" ]; then
   rm -f "$FADE_PID_FILE"
 fi
 
-# Reset to Terminal.app default background color
-printf '\033]6;1;bg;*;default\007' > "$MY_TTY" 2>/dev/null
+# Reset to profile default background color via OSC 111
+printf '\033]111\007' > "$MY_TTY" 2>/dev/null
 rm -f "$STATE_FILE"

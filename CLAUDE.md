@@ -62,7 +62,7 @@ Core hook script. Handles all hook events:
 - Reads stdin JSON with bash regex (no python/jq dependency)
 - Finds tty by walking process tree upward
 - Deduplicates via state file (`/tmp/claude-semaphore-state_dev_ttysXXX`)
-- Sets color via ANSI escape sequences written directly to tty device (~0ms, no process spawn)
+- Sets color via OSC 11 escape sequence written directly to tty device (~0ms, no process spawn)
 - Manages fade-out background process for green state
 
 ### reset-color.sh

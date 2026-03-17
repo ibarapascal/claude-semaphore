@@ -5,6 +5,14 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.2.1] - 2026-03-17
+
+### Fixed
+- **Escape sequences not working** — v0.2.0 used OSC 6 (`\033]6;1;bg;...`), which
+  is an iTerm2 proprietary sequence that Terminal.app silently ignores. Switched to
+  OSC 11 (`\033]11;rgb:RR/GG/BB\007`), which is the xterm standard supported by
+  Terminal.app. Reset uses OSC 111 (`\033]111\007`) to restore profile default color.
+
 ## [0.2.0] - 2026-03-17
 
 ### Changed

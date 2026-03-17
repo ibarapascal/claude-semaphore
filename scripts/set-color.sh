@@ -6,8 +6,9 @@
 #   Red  (47,0,0)  - UserPromptSubmit / PreToolUse / PreCompact (busy)
 #   Green (0,31,0) - Stop (idle, waiting for user input)
 #
-# Uses Terminal.app proprietary ANSI escape sequences instead of AppleScript
+# Uses OSC 11 (xterm standard) escape sequences instead of AppleScript
 # to avoid cross-process Apple Event overhead and heap corruption risk.
+# OSC 6 is iTerm2-only; OSC 11 works with Terminal.app via /dev/tty writes.
 
 FADE_TIMEOUT=${FADE_TIMEOUT:-600}
 
@@ -38,15 +39,15 @@ TTY_SAFE=$(echo "$MY_TTY" | tr '/' '_')
 STATE_FILE="/tmp/claude-semaphore-state${TTY_SAFE}"
 FADE_PID_FILE="/tmp/claude-semaphore-fade${TTY_SAFE}"
 
-# Set tab background color via Terminal.app ANSI escape sequences
-# Args: r g b (0-255 each)
+# Set tab background color via OSC 11 escape sequence (xterm standard)
+# Args: r g b (0-255 each, converted to hex for rgb:RR/GG/BB format)
 set_color() {
-  printf '\033]6;1;bg;red;brightness;%d\007\033]6;1;bg;green;brightness;%d\007\033]6;1;bg;blue;brightness;%d\007' "$1" "$2" "$3" > "$MY_TTY" 2>/dev/null
+  printf '\033]11;rgb:%02x/%02x/%02x\007' "$1" "$2" "$3" > "$MY_TTY" 2>/dev/null
 }
 
-# Reset tab background color to Terminal.app default
+# Reset tab background color to profile default via OSC 111
 reset_color() {
-  printf '\033]6;1;bg;*;default\007' > "$MY_TTY" 2>/dev/null
+  printf '\033]111\007' > "$MY_TTY" 2>/dev/null
 }
 
 # Kill previous fade-out background process

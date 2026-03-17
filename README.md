@@ -5,7 +5,7 @@
 **Terminal.app tab background color as session status indicator for Claude Code**
 
 [![Claude Code Plugin](https://img.shields.io/badge/Claude%20Code-Plugin-blueviolet)](https://docs.anthropic.com/en/docs/claude-code)
-[![Version](https://img.shields.io/badge/version-0.2.0-blue)](https://github.com/ibarapascal/claude-semaphore/releases)
+[![Version](https://img.shields.io/badge/version-0.2.1-blue)](https://github.com/ibarapascal/claude-semaphore/releases)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 [![Platform](https://img.shields.io/badge/platform-macOS-lightgrey)](https://github.com/ibarapascal/claude-semaphore)
 
@@ -115,9 +115,10 @@ Hook Event (e.g., PreToolUse)
        └─ On Stop: spawn background fade process (sleep N → reset to default)
 ```
 
-Uses Terminal.app's proprietary escape sequences (`\033]6;1;bg;...`) to set tab
-background color by writing directly to the tty device file. This is an in-process
-operation with no cross-process communication, eliminating the AppleScript overhead
+Uses OSC 11 (`\033]11;rgb:RR/GG/BB\007`), the xterm standard escape sequence, to
+set tab background color by writing directly to the tty device file. Data flows
+through the kernel pty layer and is processed by Terminal.app as normal process
+output — zero cross-process communication, eliminating the AppleScript overhead
 and stability issues of the v0.1 approach.
 
 **Temporary files** (per-tty, in `/tmp/`):
