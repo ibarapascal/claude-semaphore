@@ -13,6 +13,12 @@
 
 ---
 
+<div align="center">
+<img src="assets/screenshot.jpg" alt="Claude Semaphore in action" width="640">
+</div>
+
+---
+
 ## Overview
 
 **The problem:**
