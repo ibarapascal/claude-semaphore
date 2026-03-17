@@ -1,0 +1,14 @@
+{
+  "name": "claude-semaphore",
+  "description": "Claude Semaphore plugin marketplace",
+  "owner": { "name": "ibarapascal" },
+  "plugins": [
+    {
+      "name": "claude-semaphore",
+      "description": "Terminal.app tab background color as Claude Code session status indicator — red means busy, green means waiting for input",
+      "author": { "name": "ibarapascal" },
+      "source": "./",
+      "category": "productivity"
+    }
+  ]
+}
