@@ -5,7 +5,7 @@
 **Terminal.app tab background color as session status indicator for Claude Code**
 
 [![Claude Code Plugin](https://img.shields.io/badge/Claude%20Code-Plugin-blueviolet)](https://docs.anthropic.com/en/docs/claude-code)
-[![Version](https://img.shields.io/badge/version-0.2.2-blue)](https://github.com/ibarapascal/claude-semaphore/releases)
+[![Version](https://img.shields.io/badge/version-0.2.3-blue)](https://github.com/ibarapascal/claude-semaphore/releases)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 [![Platform](https://img.shields.io/badge/platform-macOS-lightgrey)](https://github.com/ibarapascal/claude-semaphore)
 

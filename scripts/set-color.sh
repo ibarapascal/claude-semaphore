@@ -53,11 +53,20 @@ reset_color() {
 }
 
 # Kill previous fade-out background process
+#
+# $FADE_PID_FILE holds the *subshell* pid, but the `sleep` inside it is a
+# separate child process. Killing only the subshell orphans that `sleep`
+# (reparented to launchd), leaving it alive for the full FADE_TIMEOUT.
+# Every hook event then leaked one stray `sleep`.
+#
+# Order matters: kill the grandchild first. Killing the subshell first
+# reparents `sleep` to pid 1, after which `pkill -P` can no longer find it.
 kill_fade() {
   if [ -f "$FADE_PID_FILE" ]; then
     local old_pid
     old_pid=$(cat "$FADE_PID_FILE" 2>/dev/null)
     if [ -n "$old_pid" ]; then
+      pkill -P "$old_pid" 2>/dev/null
       kill "$old_pid" 2>/dev/null
     fi
     rm -f "$FADE_PID_FILE"
